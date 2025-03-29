@@ -45,11 +45,14 @@ class CategoryOut(Schema):
     class Config:
         orm_mode = True
 
+
+
 class ProductIn(Schema):
     title: Optional[str] = None
     category: Optional[str] = None
     description: Optional[str] = None
     price: Optional[float] = None
+
 
 class ProductOut(Schema):
     id: int
@@ -60,3 +63,10 @@ class ProductOut(Schema):
 
     class Config:
         orm_mode = True
+
+
+class ProductFilter(Schema):
+    min_price: Optional[float]
+    max_price: Optional[float]
+    title: Optional[str]
+    description: Optional[str]

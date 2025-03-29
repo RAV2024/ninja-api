@@ -3,14 +3,33 @@ from typing import List, Optional
 from django.shortcuts import get_object_or_404
 
 from ..models import Product, Category
-from ..schemas import ProductIn, ProductOut
+from ..schemas import ProductIn, ProductOut, ProductFilter
 
 product_router = Router(tags=["products"])
 
 
 @product_router.get("/", response=List[ProductOut])
-def list_products(request):
-    return Product.objects.all()
+def list_products(
+    request,
+    min_price: Optional[float] = None,
+    max_price: Optional[float] = None,
+    title: Optional[str] = None,
+    description: Optional[str] = None
+):
+    products = Product.objects.all()
+
+    if min_price is not None:
+        products = products.filter(price__gte=min_price)
+    if max_price is not None:
+        products = products.filter(price__lte=max_price)
+    if title:
+        products = products.filter(title__icontains=title)
+    if description:
+        products = products.filter(description__icontains=description)
+
+    return products
+
+
 
 
 @product_router.post("/", response={201: ProductOut, 404: dict})
@@ -60,3 +79,5 @@ def delete_product(request, product_id: int):
     product = get_object_or_404(Product, id=product_id)
     product.delete()
     return {"success": True}
+
+
