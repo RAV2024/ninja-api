@@ -1,7 +1,7 @@
 from ninja import Router, Schema
 from typing import List
 from django.shortcuts import get_object_or_404
-from ..models import Category, Product
+from ..models import Category
 from ..schemas import CategoryOut, CategoryIn, ProductOut
 
 
