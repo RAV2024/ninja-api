@@ -1,0 +1,23 @@
+[
+  {
+    "model": "api.orderstatus",
+    "pk": 1,
+    "fields": {
+      "name": "Новый"
+    }
+  },
+  {
+    "model": "api.orderstatus",
+    "pk": 2,
+    "fields": {
+      "name": "В обработке"
+    }
+  },
+  {
+    "model": "api.orderstatus",
+    "pk": 3,
+    "fields": {
+      "name": "Завершён"
+    }
+  }
+]
