@@ -30,7 +30,7 @@ def list_products(
     return products
 
 
-@product_router.post("/", response={201: ProductOut, 404: dict}, summary='Добавить товар')
+@product_router.post("/", response={201: ProductOut, 404: dict, 422: dict}, summary='Добавить товар')
 def create_product(request, payload: ProductIn):
     category = Category.objects.filter(slug=payload.category).first()
     if not category:

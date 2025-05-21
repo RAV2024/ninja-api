@@ -1,0 +1,20 @@
+[
+  {
+    "model": "api.category",
+    "pk": 1,
+    "fields": {
+      "title": "Телевизоры",
+      "slug": "televizory"
+    }
+  },
+  {
+    "model": "api.product",
+    "pk": 1,
+    "fields": {
+      "title": "Samsung QLED",
+      "category": 1,
+      "description": "QLED 4K TV",
+      "price": 50000
+    }
+  }
+]

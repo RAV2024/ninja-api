@@ -8,6 +8,7 @@ from typing import List
 
 class TokenAuth(HttpBearer):
     def authenticate(self, request, token):
+        print(f"AUTHTOKEN: {token}")
         try:
             token_obj = Token.objects.get(key=token)
             request.user = token_obj.user

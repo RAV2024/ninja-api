@@ -32,6 +32,7 @@ class WishlistItem(models.Model):
         return f"{self.user.username} - {self.product.title}"
 
 
+
 class OrderStatus(models.Model):
     name = models.CharField(max_length=50)
 

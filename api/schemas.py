@@ -31,7 +31,7 @@ class UserOut(Schema):
     email: str
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class CategoryIn(Schema):
@@ -44,7 +44,7 @@ class CategoryOut(Schema):
     slug: str
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 
@@ -64,7 +64,7 @@ class ProductOut(Schema):
     category: CategoryOut
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class ProductFilter(Schema):
@@ -85,7 +85,7 @@ class WishlistItemOut(Schema):
     product: ProductOut
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 
@@ -93,7 +93,7 @@ class StatusOut(Schema):
     id: int
     name: str
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 
@@ -111,7 +111,7 @@ class OrderItemOut(Schema):
     quantity: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class OrderItemIn(Schema):
@@ -127,4 +127,4 @@ class OrderOut(Schema):
     items: List[OrderItemOut]
 
     class Config:
-        orm_mode = True
+        from_attributes = True
