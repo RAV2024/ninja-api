@@ -2,23 +2,16 @@ from ninja import Router
 from ninja.security import HttpBearer
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.models import User
+
+from .permissions import is_manager, permission_required
 from ..models import WishlistItem, Product
 from ..schemas import WishlistItemOut, WishlistItemIn, ErrorOut
-from rest_framework.authtoken.models import Token
 from typing import List
+from .auth_backend import auth
 
-
-class TokenAuth(HttpBearer):
-    def authenticate(self, request, token):
-        try:
-            token_obj = Token.objects.get(key=token)
-            request.user = token_obj.user
-            return token
-        except Token.DoesNotExist:
-            return None
 
 wishlist_router = Router(tags=["wishlist"])
-auth = TokenAuth()
+
 
 
 @wishlist_router.get("/", response=List[WishlistItemOut], auth=auth, summary='Получить вишлист текущего пользователя')
@@ -26,12 +19,11 @@ def get_wishlist(request):
     return WishlistItem.objects.filter(user=request.user)
 
 
-@wishlist_router.get("/user/{user_id}", response={200: List[WishlistItemOut], 403: ErrorOut, 404: ErrorOut}, auth=auth, summary="Получить вишлист пользователя по ID (только для менеджеров)")
+@wishlist_router.get("/user/{user_id}", response={200: List[WishlistItemOut], 403: ErrorOut, 404: ErrorOut}, auth=auth, summary="Получить вишлист пользователя по ID (Менеджер)")
+@permission_required(is_manager)
 def get_user_wishlist_for_manager(request, user_id: int):
     """Получает вишлист пользователя по ID — только для менеджеров"""
     user = request.user
-    if not user.groups.filter(name="менеджеры").exists():
-        return 403, {"detail": "Доступ только для менеджеров!"}
 
     target_user = get_object_or_404(User, id=user_id)
     wishlist_items = WishlistItem.objects.filter(user=target_user)

@@ -1,6 +1,16 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+
+class ManagerRequest(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    status = models.CharField(max_length=20, default='ожидает рассмотрения')  # ожидает рассмотрения, одобренн
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Запрос от - {self.status}"
+
+
 class Category(models.Model):
     title = models.CharField(max_length=255)
     slug = models.SlugField(max_length=200, db_index=True, unique=True)
@@ -32,13 +42,11 @@ class WishlistItem(models.Model):
         return f"{self.user.username} - {self.product.title}"
 
 
-
 class OrderStatus(models.Model):
     name = models.CharField(max_length=50)
 
     def __str__(self):
         return self.name
-
 
 
 class Order(models.Model):
@@ -49,7 +57,6 @@ class Order(models.Model):
 
     def __str__(self):
         return f"Order #{self.pk} - {self.user.username}"
-
 
 
 class OrderItem(models.Model):

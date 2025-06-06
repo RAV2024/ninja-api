@@ -3,7 +3,8 @@ from ninja.security import HttpBearer
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
-
+from .auth_backend import auth
+from .permissions import permission_required, is_manager
 from ..models import Order, OrderItem, OrderStatus, Product, WishlistItem
 from ..schemas import OrderOut, OrderItemIn, OrderItemOut, OrderIn, StatusOut, ErrorOut
 
@@ -12,27 +13,14 @@ from decimal import Decimal
 from datetime import datetime
 
 
-
-class TokenAuth(HttpBearer):
-    def authenticate(self, request, token):
-        try:
-            token_obj = Token.objects.get(key=token)
-            request.user = token_obj.user
-            return token
-        except Token.DoesNotExist:
-            return None
-
-
-
 order_router = Router(tags=["orders"])
-auth = TokenAuth()
 
-@order_router.get("/", response={200: List[OrderOut], 403: ErrorOut}, auth = auth, summary="Список всех заказов (только менеджер)")
+
+@order_router.get("/", response={200: List[OrderOut], 403: ErrorOut}, auth = auth, summary="Список всех заказов (Менеджер)")
+@permission_required(is_manager)
 def get_all_orders(request):
     """Получить список всех заказов (только для менеджеров)"""
-    if not request.user.groups.filter(name="менеджеры").exists():
-        return 403, {"detail": "Только для менеджеров!"}
-    return Order.objects.all().prefetch_related("items__product")
+    return Order.objects.all().prefetch_related("items__product").only("id", "user_id", "status", "total", "created_at")
 
 
 @order_router.get("/my", response=List[OrderOut], auth=auth, summary="Список заказов текущего пользователя")
@@ -41,11 +29,10 @@ def get_my_orders(request):
 
 
 
-@order_router.get("/user/{user_id}", response={200: List[OrderOut], 403: ErrorOut, 404: ErrorOut}, auth=auth, summary="Список заказов по ID пользователя (только менеджер)")
+@order_router.get("/user/{user_id}", response={200: List[OrderOut], 403: ErrorOut, 404: ErrorOut}, auth=auth, summary="Список заказов по ID пользователя (Менеджер)")
+@permission_required(is_manager)
 def get_user_orders(request, user_id: int):
     """Список заказов по ID пользователя (только для менеджеров)"""
-    if not request.user.groups.filter(name="менеджеры").exists():
-        return 403, {"detail": "Доступ только для менеджеров!"}
 
     target_user = get_object_or_404(User, id=user_id)
     return Order.objects.filter(user=target_user).prefetch_related("items__product")
@@ -84,11 +71,10 @@ def create_order_from_wishlist(request):
 
     return order
 
-@order_router.put("/{order_id}/status", response={200: OrderOut, 403: ErrorOut, 404: ErrorOut}, auth=auth, summary="Изменить статус заказа (только менеджер)")
+@order_router.put("/{order_id}/status", response={200: OrderOut, 403: ErrorOut, 404: ErrorOut}, auth=auth, summary="Изменить статус заказа (Менеджер)")
+@permission_required(is_manager)
 def update_order_status(request, order_id: int, status_id: int):
     """Изменить статус заказа (только менеджер)"""
-    if not request.user.groups.filter(name="менеджеры").exists():
-        return 403, {"detail": "Только менеджеры могут менять статус"}
 
     order = get_object_or_404(Order, id=order_id)
     status = get_object_or_404(OrderStatus, id=status_id)

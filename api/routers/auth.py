@@ -1,8 +1,8 @@
 from ninja import Router
 from django.contrib.auth import authenticate
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
-from ..schemas import LoginIn, LoginOut, RegisterIn, UserOut, ErrorOut
+from ..schemas import LoginIn, LoginOut, RegisterIn,  ErrorOut
 
 auth_router = Router(tags=["auth"])
 
@@ -28,10 +28,6 @@ def register(request, data: RegisterIn):
         last_name=data.last_name,
         email=data.email
     )
-
-    if data.is_manager:
-        group, created = Group.objects.get_or_create(name="менеджеры")
-        user.groups.add(group)
 
     token, _ = Token.objects.get_or_create(user=user)
     return {"token": token.key}

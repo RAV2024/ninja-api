@@ -9,7 +9,6 @@ class RegisterIn(Schema):
     first_name: Optional[str] = ""
     last_name: Optional[str] = ""
     email: Optional[str] = ""
-    is_manager: Optional[bool] = False
 
 
 class LoginIn(Schema):
@@ -34,6 +33,15 @@ class UserOut(Schema):
         from_attributes = True
 
 
+
+class ManagerOut(Schema):
+    id: int
+    user: UserOut
+    status: str
+    created_at: datetime
+
+
+
 class CategoryIn(Schema):
     title: str
     slug: str
@@ -46,6 +54,10 @@ class CategoryOut(Schema):
     class Config:
         from_attributes = True
 
+
+class CategoryUpdate(Schema):
+    title: Optional[str]
+    slug: Optional[str]
 
 
 class ProductIn(Schema):
@@ -92,6 +104,7 @@ class WishlistItemOut(Schema):
 class StatusOut(Schema):
     id: int
     name: str
+
     class Config:
         from_attributes = True
 
@@ -121,6 +134,7 @@ class OrderItemIn(Schema):
 
 class OrderOut(Schema):
     id: int
+    user_id: int
     status: StatusOut
     total: float
     created_at: datetime

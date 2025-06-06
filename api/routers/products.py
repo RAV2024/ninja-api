@@ -1,7 +1,8 @@
 from ninja import Router
 from typing import List, Optional
 from django.shortcuts import get_object_or_404
-
+from .auth_backend import auth
+from .permissions import is_manager, permission_required
 from ..models import Product, Category
 from ..schemas import ProductIn, ProductOut, ProductFilter
 
@@ -30,7 +31,8 @@ def list_products(
     return products
 
 
-@product_router.post("/", response={201: ProductOut, 404: dict, 422: dict}, summary='Добавить товар')
+@product_router.post("/", response={201: ProductOut, 404: dict, 422: dict}, auth=auth, summary='Добавить товар (Менеджер)')
+@permission_required(is_manager)
 def create_product(request, payload: ProductIn):
     category = Category.objects.filter(slug=payload.category).first()
     if not category:
@@ -53,7 +55,8 @@ def get_product(request, product_id: int):
     return product
 
 
-@product_router.patch("/{product_id}", response={200: ProductOut, 404: dict}, summary='Изменить информацию товара')
+@product_router.patch("/{product_id}", response={200: ProductOut, 404: dict}, auth=auth, summary='Изменить информацию товара (Менеджер)')
+@permission_required(is_manager)
 def update_product(request, product_id: int, payload: ProductIn):
     product = get_object_or_404(Product, id=product_id)
 
@@ -77,7 +80,8 @@ def update_product(request, product_id: int, payload: ProductIn):
     return product
 
 
-@product_router.delete("/{product_id}", summary='Удалить товар')
+@product_router.delete("/{product_id}", auth=auth, summary='Удалить товар (Менеджер)')
+@permission_required(is_manager)
 def delete_product(request, product_id: int):
     product = get_object_or_404(Product, id=product_id)
     if not product:
